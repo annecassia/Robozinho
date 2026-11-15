@@ -105,7 +105,7 @@ if __name__ == "__main__":
     delay_aplicado = 0 if sem_delay else INTERVALO_ENTRE_POSTAGENS
 
     if "--loop" in sys.argv:
-        intervalo_minutos = 30
+        intervalo_minutos = 5
         print(f"🔄 Modo Contínuo Ativado! Rodando a cada {intervalo_minutos} minutos...")
         while True:
             executar_ciclo_robo(delay_entre_posts=delay_aplicado)

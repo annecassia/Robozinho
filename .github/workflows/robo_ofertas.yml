@@ -2,8 +2,8 @@ name: Robo Cacador de Ofertas 24h
 
 on:
   schedule:
-    # Roda automaticamente a cada 30 minutos na nuvem gratuita do GitHub (PC desligado)
-    - cron: '*/30 * * * *'
+    # Roda automaticamente a cada 5 minutos na nuvem gratuita do GitHub (PC desligado)
+    - cron: '*/5 * * * *'
   workflow_dispatch: # Permite rodar manualmente clicando em "Run workflow" no GitHub
 
 permissions:
