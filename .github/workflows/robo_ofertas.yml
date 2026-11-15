@@ -39,8 +39,8 @@ jobs:
         run: |
           if [ -n "$WHATSAPP_SESSION_B64" ]; then
             mkdir -p dados/sessao_whatsapp
-            echo "$WHATSAPP_SESSION_B64" | base64 -d | tar -xz -C dados/sessao_whatsapp/
-            echo "Sessao do WhatsApp restaurada com sucesso!"
+            echo "$WHATSAPP_SESSION_B64" | base64 -d > dados/sessao_whatsapp/creds.json
+            echo "creds.json do WhatsApp restaurado com sucesso!"
           fi
 
       - name: Executar Robo Cacador de Ofertas
