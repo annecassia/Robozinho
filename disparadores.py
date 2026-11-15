@@ -134,21 +134,30 @@ def hospedar_imagem_para_meta(caminho_imagem: Path, nome_arquivo: str = "ig_uplo
         shutil.copyfile(caminho_imagem, destino)
         env = os.environ.copy()
         env["SURGE_TOKEN"] = "1ce543cfb21cae803b0957b98d2f4447"
-        subprocess.run(
-            ["cmd.exe", "/c", "npx.cmd", "surge", str(site_dir), "annewealth.surge.sh"],
+        
+        # Compatibilidade Windows e Linux (GitHub Actions)
+        if os.name == "nt":
+            cmd = ["cmd.exe", "/c", "npx.cmd", "surge", str(site_dir), "annewealth.surge.sh"]
+        else:
+            cmd = ["npx", "surge", str(site_dir), "annewealth.surge.sh"]
+
+        res = subprocess.run(
+            cmd,
             env=env,
             capture_output=True,
-            timeout=25,
+            timeout=35,
         )
-        return f"https://annewealth.surge.sh/{nome_arquivo}"
+        if res.returncode == 0:
+            return f"https://annewealth.surge.sh/{nome_arquivo}"
+        print(f"   [Instagram] Surge retorno ({res.returncode}): {res.stderr.decode('utf-8', errors='ignore')[:150]}")
     except Exception as e:
         print(f"   [Instagram] Aviso ao hospedar imagem: {e}")
-        return None
+    return None
 
 
-def disparar_instagram(origem_imagem, legenda_instagram: str) -> bool:
+def disparar_instagram(origem_imagem, legenda_instagram: str, fallback_url: str = "") -> bool:
     """
-    Publica no feed do Instagram Business/Creator (@annecassialmeida).
+    Publica no feed do Instagram Business/Creator (@loja.annes).
     Aceita tanto um Path local (hospeda automaticamente) quanto uma URL pública HTTPS.
     """
     if not INSTAGRAM_ATIVO or not INSTAGRAM_ACCOUNT_ID or not INSTAGRAM_ACCESS_TOKEN:
@@ -159,6 +168,10 @@ def disparar_instagram(origem_imagem, legenda_instagram: str) -> bool:
         url_final = hospedar_imagem_para_meta(Path(origem_imagem))
     elif isinstance(origem_imagem, str) and origem_imagem.startswith("http"):
         url_final = origem_imagem
+
+    # Se a hospedagem falhar, tenta o fallback da URL direta se houver
+    if not url_final and fallback_url and fallback_url.startswith("http"):
+        url_final = fallback_url
 
     if not url_final:
         print("   [Instagram] ⚠️ Imagem não disponível para envio ao Instagram.")

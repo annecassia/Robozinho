@@ -60,7 +60,7 @@ def executar_ciclo_robo(delay_entre_posts: int = INTERVALO_ENTRE_POSTAGENS):
         print("\n🚀 Disparando Oferta nas plataformas...")
         disparar_whatsapp(caminho_foto, txt_whatsapp)
         disparar_facebook(caminho_foto, txt_facebook)
-        disparar_instagram(caminho_foto, txt_instagram)
+        disparar_instagram(caminho_foto, txt_instagram, fallback_url=oferta.get("imagem_url", ""))
         disparar_pinterest(caminho_foto, dados_pinterest)
 
         # Registra no histórico permanente e na janela de 1 hora anti-repetição
