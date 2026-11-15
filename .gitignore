@@ -23,3 +23,5 @@ _cacache/
 # Imagens temporárias geradas no site
 site_annewealth/*.jpg
 site_annewealth/*.png
+
+whatsapp_session_secret.txt
