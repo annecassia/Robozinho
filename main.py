@@ -60,7 +60,7 @@ def executar_ciclo_robo(delay_entre_posts: int = INTERVALO_ENTRE_POSTAGENS):
         print("\n🚀 Disparando Oferta nas plataformas...")
         disparar_whatsapp(caminho_foto, txt_whatsapp)
         disparar_facebook(caminho_foto, txt_facebook)
-        disparar_instagram(caminho_foto, txt_instagram, fallback_url=oferta.get("imagem_url", ""))
+        disparar_instagram(oferta.get("imagem_url"), txt_instagram)
         disparar_pinterest(caminho_foto, dados_pinterest)
 
         # Registra no histórico permanente e na janela de 1 hora anti-repetição
@@ -87,7 +87,8 @@ def executar_ciclo_robo(delay_entre_posts: int = INTERVALO_ENTRE_POSTAGENS):
         print(f"\n🎟️ Disparando Cupom da {cupom['loja']}...")
         disparar_whatsapp(caminho_logo_cupom, txt_cupom)
         disparar_facebook(caminho_logo_cupom, txt_cupom)
-        disparar_instagram(caminho_logo_cupom, txt_cupom_ig)
+        logo_url_publica = f"https://raw.githubusercontent.com/annecassia/Robozinho/main/assets/logos/{caminho_logo_cupom.name}"
+        disparar_instagram(logo_url_publica, txt_cupom_ig)
 
         # Registra no histórico permanente e na janela de 1 hora
         salvar_no_historico(cupom["id"])
@@ -106,9 +107,15 @@ if __name__ == "__main__":
 
     if "--loop" in sys.argv:
         intervalo_minutos = 5
+        ciclos_max = int(sys.argv[sys.argv.index("--ciclos") + 1]) if "--ciclos" in sys.argv else 0
         print(f"🔄 Modo Contínuo Ativado! Rodando a cada {intervalo_minutos} minutos...")
+        contador = 0
         while True:
             executar_ciclo_robo(delay_entre_posts=delay_aplicado)
+            contador += 1
+            if ciclos_max > 0 and contador >= ciclos_max:
+                print(f"🏁 Limite de {ciclos_max} ciclos atingido nesta sessão.")
+                break
             print(f"\n⏳ Aguardando {intervalo_minutos} minutos até a próxima busca...")
             time.sleep(intervalo_minutos * 60)
     else:

@@ -6,8 +6,13 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch: # Permite rodar manualmente clicando em "Run workflow" no GitHub
 
+concurrency:
+  group: robo-ofertas-24h
+  cancel-in-progress: false
+
 permissions:
   contents: write
+  actions: write
 
 jobs:
   cacar_e_postar_oferta:
@@ -22,10 +27,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Configurar Node.js 20 (Para o WhatsApp)
+      - name: Configurar Node.js 22 (Para o WhatsApp)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Instalar dependencias Python
         run: pip install -r requirements.txt
@@ -43,7 +48,7 @@ jobs:
             echo "creds.json do WhatsApp restaurado com sucesso!"
           fi
 
-      - name: Executar Robo Cacador de Ofertas
+      - name: Executar Robo Cacador de Ofertas (Loop Ativo de 30 minutos)
         env:
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
           MERCADOLIVRE_AFFILIATE_ID: ${{ secrets.MERCADOLIVRE_AFFILIATE_ID }}
@@ -63,7 +68,7 @@ jobs:
           PINTEREST_ATIVO: ${{ secrets.PINTEREST_ATIVO || 'false' }}
           PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
           PINTEREST_BOARD_ID: ${{ secrets.PINTEREST_BOARD_ID }}
-        run: python main.py
+        run: python main.py --loop --ciclos 6
 
       - name: Salvar historico de ofertas ja postadas
         run: |
@@ -72,3 +77,9 @@ jobs:
           git add dados/historico_postados.json dados/registro_envios_recentes.json dados/ultimo_estado_loja.json || true
           git diff --staged --quiet || git commit -m "chore: atualiza historico de ofertas postadas"
           git push || true
+
+      - name: Auto-disparar proximo ciclo de 30min (Loop Continuo 24/7)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run robo_ofertas.yml --ref main || true

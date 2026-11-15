@@ -3,9 +3,9 @@ from pathlib import Path
 import re
 import requests
 from PIL import Image, ImageDraw, ImageFont
-from config import CARDS_DIR, OUTPUT_DIR
+from config import BASE_DIR, CARDS_DIR, OUTPUT_DIR
 
-LOGOS_DIR = OUTPUT_DIR / "logos"
+LOGOS_DIR = BASE_DIR / "assets" / "logos"
 LOGOS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Identidade visual oficial de cada loja

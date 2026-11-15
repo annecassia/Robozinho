@@ -126,62 +126,19 @@ def disparar_facebook(caminho_imagem: Path, mensagem_facebook: str) -> bool:
     return False
 
 
-def hospedar_imagem_para_meta(caminho_imagem: Path, nome_arquivo: str = "ig_upload.jpg") -> str | None:
-    """Copia a imagem local para o site e publica no Surge para o Instagram baixar sem bloqueio."""
-    try:
-        site_dir = BASE_DIR / "site_annewealth"
-        destino = site_dir / nome_arquivo
-        shutil.copyfile(caminho_imagem, destino)
-        env = os.environ.copy()
-        env["SURGE_TOKEN"] = "1ce543cfb21cae803b0957b98d2f4447"
-        
-        # Compatibilidade Windows e Linux (GitHub Actions)
-        if os.name == "nt":
-            cmd = ["cmd.exe", "/c", "npx.cmd", "surge", str(site_dir), "annewealth.surge.sh"]
-        else:
-            cmd = ["npx", "surge", str(site_dir), "annewealth.surge.sh"]
-
-        res = subprocess.run(
-            cmd,
-            env=env,
-            capture_output=True,
-            timeout=35,
-        )
-        if res.returncode == 0:
-            return f"https://annewealth.surge.sh/{nome_arquivo}"
-        print(f"   [Instagram] Surge retorno ({res.returncode}): {res.stderr.decode('utf-8', errors='ignore')[:150]}")
-    except Exception as e:
-        print(f"   [Instagram] Aviso ao hospedar imagem: {e}")
-    return None
-
-
-def disparar_instagram(origem_imagem, legenda_instagram: str, fallback_url: str = "") -> bool:
-    """
-    Publica no feed do Instagram Business/Creator (@loja.annes).
-    Aceita tanto um Path local (hospeda automaticamente) quanto uma URL pública HTTPS.
-    """
+def disparar_instagram(imagem_url: str, legenda_instagram: str) -> bool:
+    """Publica no feed do Instagram Business/Creator (@loja.annes)."""
     if not INSTAGRAM_ATIVO or not INSTAGRAM_ACCOUNT_ID or not INSTAGRAM_ACCESS_TOKEN:
         return False
-
-    url_final = None
-    if isinstance(origem_imagem, Path) or (isinstance(origem_imagem, str) and Path(origem_imagem).exists()):
-        url_final = hospedar_imagem_para_meta(Path(origem_imagem))
-    elif isinstance(origem_imagem, str) and origem_imagem.startswith("http"):
-        url_final = origem_imagem
-
-    # Se a hospedagem falhar, tenta o fallback da URL direta se houver
-    if not url_final and fallback_url and fallback_url.startswith("http"):
-        url_final = fallback_url
-
-    if not url_final:
-        print("   [Instagram] ⚠️ Imagem não disponível para envio ao Instagram.")
+    if not imagem_url or not str(imagem_url).startswith("http"):
+        print("   [Instagram] ⚠️ URL pública da imagem não informada.")
         return False
 
     url_container = f"https://graph.facebook.com/v19.0/{INSTAGRAM_ACCOUNT_ID}/media"
     try:
         # 1. Cria o container de mídia no Instagram
         params_container = {
-            "image_url": url_final,
+            "image_url": str(imagem_url),
             "caption": legenda_instagram,
             "access_token": INSTAGRAM_ACCESS_TOKEN,
         }
