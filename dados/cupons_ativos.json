@@ -1,0 +1,23 @@
+[
+  {
+    "id": "CUPOM_SHOPEE_FRETE_OFF",
+    "loja": "Shopee",
+    "codigo": "SHOPEEOFF20",
+    "beneficio": "R$ 20 OFF + Cupom de Frete Grátis na Shopee",
+    "regra": "Válido no App da Shopee para produtos selecionados e Lojas Oficiais."
+  },
+  {
+    "id": "CUPOM_MELI_DESCONTO",
+    "loja": "Mercado Livre",
+    "codigo": "MELI15OFF",
+    "beneficio": "15% OFF na Central de Cupons do Mercado Livre (Envio Full)",
+    "regra": "Ative o cupom na página do Mercado Livre antes de adicionar ao carrinho."
+  },
+  {
+    "id": "CUPOM_AMZ_PRIMEIRA20",
+    "loja": "Amazon Brasil",
+    "codigo": "APLICAR NA PÁGINA",
+    "beneficio": "Até 30% OFF na Central Oficial de Cupons da Amazon",
+    "regra": "Válido em Eletrônicos, Casa, Gamer e Livros (basta marcar 'Aplicar Cupom')."
+  }
+]

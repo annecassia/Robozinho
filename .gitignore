@@ -1,0 +1,25 @@
+# Variáveis de ambiente e Tokens Secretos (NUNCA SUBIR PRO GIT)
+.env
+*.env
+
+# Sessão do WhatsApp (Chaves criptográficas da conta)
+dados/sessao_whatsapp/
+auth_info_baileys/
+
+# Dependências
+node_modules/
+__pycache__/
+*.pyc
+
+# Arquivos temporários de saída e logs
+output/
+.system_generated/
+*.log
+
+# Caches locais
+.cache/
+_cacache/
+
+# Imagens temporárias geradas no site
+site_annewealth/*.jpg
+site_annewealth/*.png
