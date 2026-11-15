@@ -2,7 +2,7 @@ name: Robo Cacador de Ofertas 24h
 
 on:
   schedule:
-    # Roda automaticamente a cada 30 minutos na nuvem gratuita do GitHub
+    # Roda automaticamente a cada 30 minutos na nuvem gratuita do GitHub (PC desligado)
     - cron: '*/30 * * * *'
   workflow_dispatch: # Permite rodar manualmente clicando em "Run workflow" no GitHub
 
@@ -22,22 +22,45 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar dependencias (requests, Pillow, dotenv)
+      - name: Configurar Node.js 20 (Para o WhatsApp)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias Python
         run: pip install -r requirements.txt
+
+      - name: Instalar dependencias Node
+        run: npm install
+
+      - name: Restaurar sessao do WhatsApp (se configurado)
+        env:
+          WHATSAPP_SESSION_B64: ${{ secrets.WHATSAPP_SESSION_B64 }}
+        run: |
+          if [ -n "$WHATSAPP_SESSION_B64" ]; then
+            mkdir -p dados/sessao_whatsapp
+            echo "$WHATSAPP_SESSION_B64" | base64 -d | tar -xz -C dados/sessao_whatsapp/
+            echo "Sessao do WhatsApp restaurada com sucesso!"
+          fi
 
       - name: Executar Robo Cacador de Ofertas
         env:
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
           MERCADOLIVRE_AFFILIATE_ID: ${{ secrets.MERCADOLIVRE_AFFILIATE_ID }}
+          SHOPEE_AFFILIATE_PARAMS: ${{ secrets.SHOPEE_AFFILIATE_PARAMS }}
+          LOMADEE_APP_TOKEN: ${{ secrets.LOMADEE_APP_TOKEN }}
+          LOMADEE_SOURCE_ID: ${{ secrets.LOMADEE_SOURCE_ID }}
           LINK_GRUPO_WHATSAPP: ${{ secrets.LINK_GRUPO_WHATSAPP }}
-          WHATSAPP_ATIVO: ${{ secrets.WHATSAPP_ATIVO }}
-          GREEN_API_INSTANCE_ID: ${{ secrets.GREEN_API_INSTANCE_ID }}
-          GREEN_API_TOKEN: ${{ secrets.GREEN_API_TOKEN }}
-          WHATSAPP_GROUP_ID: ${{ secrets.WHATSAPP_GROUP_ID }}
-          FACEBOOK_ATIVO: ${{ secrets.FACEBOOK_ATIVO }}
+          DESCONTO_MINIMO_PERCENTUAL: ${{ secrets.DESCONTO_MINIMO_PERCENTUAL || '25' }}
+          WHATSAPP_ATIVO: ${{ secrets.WHATSAPP_ATIVO || 'true' }}
+          WHATSAPP_GROUP_ID: ${{ secrets.WHATSAPP_GROUP_ID || '120363412439180579@newsletter' }}
+          FACEBOOK_ATIVO: ${{ secrets.FACEBOOK_ATIVO || 'true' }}
           FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
           FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
-          PINTEREST_ATIVO: ${{ secrets.PINTEREST_ATIVO }}
+          INSTAGRAM_ATIVO: ${{ secrets.INSTAGRAM_ATIVO || 'true' }}
+          INSTAGRAM_ACCOUNT_ID: ${{ secrets.INSTAGRAM_ACCOUNT_ID }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          PINTEREST_ATIVO: ${{ secrets.PINTEREST_ATIVO || 'false' }}
           PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
           PINTEREST_BOARD_ID: ${{ secrets.PINTEREST_BOARD_ID }}
         run: python main.py
@@ -46,6 +69,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add dados/historico_postados.json || true
+          git add dados/historico_postados.json dados/registro_envios_recentes.json dados/ultimo_estado_loja.json || true
           git diff --staged --quiet || git commit -m "chore: atualiza historico de ofertas postadas"
           git push || true
